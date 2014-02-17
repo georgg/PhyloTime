@@ -4,27 +4,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PhyloTreeNodePlace extends PhyloTreeNode {
-	// edges on which the node is inserted
-	ArrayList<PhyloTreeEdge> edges = new ArrayList<PhyloTreeEdge>();
-	// likelihoods weights for edge insertions
-	HashMap<PhyloTreeEdge,Double> edgeLikeWt = new HashMap<PhyloTreeEdge,Double>();
-	// distal lengths for edge insertions
-	HashMap<PhyloTreeEdge,Double> distalLength = new HashMap<PhyloTreeEdge,Double>();
-	// pendant lengths for edge insertions
-	HashMap<PhyloTreeEdge,Double> pendantLength = new HashMap<PhyloTreeEdge,Double>();
+	// edge on which the node is inserted
+	PhyloTreeEdge edge = null;
+	// likelihood weight for the edge insertion
+	double edgeLikeWt = 0.0;
+	// distal length for edge insertion
+	double distalLength = 0.0;
+	// pendant length for edge insertion
+	double pendantLength = 0.0;
+	// distances to all other nodes for each placement
+	ArrayList<Double> distances = new ArrayList<Double>();
 	
 	public PhyloTreeNodePlace(String n) {
 		super(n);
 	}
 	
-	public String placementInfo() {
-		String s = "place " + name;
-		
-		for (int i = 0; i<edges.size();i++) {
-			PhyloTreeEdge edge = edges.get(i);
-			s = s + " [{" + edge.edgeNum + "} wt=" + edgeLikeWt.get(edge) + " dlen=" + distalLength.get(edge) + " plen=" + pendantLength.get(edge) + "]";
-		}
-		
-		return s;
+	public String nodeInfo() {
+		return name + " [placed]";
 	}
 }

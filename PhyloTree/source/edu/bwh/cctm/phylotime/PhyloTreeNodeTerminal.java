@@ -7,5 +7,9 @@ public class PhyloTreeNodeTerminal extends PhyloTreeNodeStandard {
 	public PhyloTreeNodeTerminal(String n) {
 		super(n);
 	}
+	
+	public String nodeInfo() {
+		return name + "[ref=" + species_name + "]";
+	}
 
 }

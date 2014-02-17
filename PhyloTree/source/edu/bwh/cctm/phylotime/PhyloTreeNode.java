@@ -7,4 +7,8 @@ public class PhyloTreeNode {
 	public PhyloTreeNode(String n) {
 		name = n;
 	}
+	
+	public String nodeInfo() {
+		return name;
+	}
 }

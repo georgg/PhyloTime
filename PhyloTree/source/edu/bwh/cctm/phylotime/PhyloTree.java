@@ -7,19 +7,48 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 import net.sourceforge.olduvai.treejuxtaposer.TreeParser;
 import net.sourceforge.olduvai.treejuxtaposer.drawer.TreeNode;
 
 public class PhyloTree {
 	PhyloTreeNodeStandard root = null;
-	HashMap<String,PhyloTreeNode> nodes = new HashMap<String,PhyloTreeNode>();
-	HashMap<String,PhyloTreeEdge> edges = new HashMap<String,PhyloTreeEdge>();
-	HashMap<String,PhyloTreeNodePlace> placements = new HashMap<String,PhyloTreeNodePlace>();
+	LinkedHashMap<String,PhyloTreeNode> nodes = new LinkedHashMap<String,PhyloTreeNode>();
+	LinkedHashMap<String,PhyloTreeEdge> edges = new LinkedHashMap<String,PhyloTreeEdge>();
+	LinkedHashMap<String,PhyloTreeNodePlace> placements = new LinkedHashMap<String,PhyloTreeNodePlace>();
+	LinkedHashMap<String,OTU> OTUs = new LinkedHashMap<String,OTU>();
 	// map for all nodes (used to build distance matrix for nodes)
-	HashMap<PhyloTreeNode,Integer> nodeMap = new HashMap<PhyloTreeNode,Integer>();
+	LinkedHashMap<PhyloTreeNode,Integer> nodeMap = new LinkedHashMap<PhyloTreeNode,Integer>();
 	
-	public void buildNodeMap() {
+	// calculate distances from placements to all nodes
+	public void calcDistances() {
+		buildNodeMap();
+		
+		Iterator<OTU> oIter = OTUs.values().iterator();
+		while(oIter.hasNext()) {
+			OTU o = oIter.next();
+			o.calcDistanceUp(this);
+		}
+	}
+	
+	public void outputNodeInfo() {
+		Iterator<PhyloTreeNode> iter = nodeMap.keySet().iterator();
+		int i = 0;
+		while (iter.hasNext()) {
+			System.out.println(i + " " + iter.next().nodeInfo());
+			i++;
+		}
+	}
+	
+	public void printDistances() {
+		Iterator<OTU> iter = OTUs.values().iterator();
+		while (iter.hasNext()) {
+			iter.next().printDistances();
+		}
+	}
+	
+	private void buildNodeMap() {
 		int i = 0;
 		Iterator<PhyloTreeNode> iterN = nodes.values().iterator();
 		while (iterN.hasNext()) {
@@ -46,6 +75,7 @@ public class PhyloTree {
 		net.sourceforge.olduvai.treejuxtaposer.drawer.Tree myTree = tp.tokenize(1, "tree", null);
         
 		root = new PhyloTreeNodeInternal("root");
+		addNode(root);
 		TreeNode rootParseNode = myTree.getNodeByKey(0);
 		recursiveTreeBuild(0,root,rootParseNode,myTree);
 	}
@@ -82,7 +112,7 @@ public class PhyloTree {
 	}
 	
 	public void placedNodePrint() {
-		Iterator<PhyloTreeNodePlace> iterP = placements.values().iterator();
+		Iterator<OTU> iterP = OTUs.values().iterator();
 		
 		while (iterP.hasNext()) {
 			System.out.println((iterP.next()).placementInfo());
@@ -149,18 +179,20 @@ public class PhyloTree {
 				line = is.readLine();
 				while (line != null) {
 					splitLine = line.split(",");
-					PhyloTreeNodePlace node = null;
-					node = placements.get(splitLine[1]);
-					if (node == null) {
-						node = new PhyloTreeNodePlace(splitLine[1]);
+					OTU myOTU = OTUs.get(splitLine[1]);
+					if (myOTU == null) {
+						myOTU = new OTU(splitLine[1]);
+						OTUs.put(myOTU.name, myOTU);
 					}
-					placements.put(node.name,node);
 					PhyloTreeEdge edge = edges.get(splitLine[3]);
+					PhyloTreeNodePlace node = new PhyloTreeNodePlace(splitLine[1]+"_"+edge.edgeNum);
+					placements.put(node.name,node);
+					myOTU.placements.add(node);
 					edge.placedNodes.add(node);
-					node.edges.add(edge);
-					node.edgeLikeWt.put(edge,Double.valueOf(splitLine[4]));
-					node.distalLength.put(edge,Double.valueOf(splitLine[8]));
-					node.pendantLength.put(edge,Double.valueOf(splitLine[9]));
+					node.edge = edge;
+					node.edgeLikeWt = Double.valueOf(splitLine[4]);
+					node.distalLength = Double.valueOf(splitLine[8]);
+					node.pendantLength = Double.valueOf(splitLine[9]);
 					line = is.readLine();
 				}
 			} catch(IOException e) {

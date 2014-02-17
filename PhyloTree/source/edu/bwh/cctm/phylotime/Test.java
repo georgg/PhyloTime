@@ -22,6 +22,9 @@ public class Test {
 		myTree.readPlacements(placePath);
 		myTree.recursiveTreePrint(myTree.root);
 		myTree.placedNodePrint();
+		myTree.calcDistances();
+		myTree.outputNodeInfo();
+		myTree.printDistances();
 		
 		/*	Tree myTree;
 		BufferedReader r  = null;

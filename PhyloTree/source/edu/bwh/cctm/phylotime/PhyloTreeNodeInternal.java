@@ -9,4 +9,7 @@ public class PhyloTreeNodeInternal extends PhyloTreeNodeStandard {
 		super(n);
 	}
 
+	public String nodeInfo() {
+		return name + " [internal]";
+	}
 }
